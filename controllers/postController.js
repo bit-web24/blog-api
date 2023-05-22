@@ -1,4 +1,5 @@
 const Post = require('../models/Post');
+const mongoose = require('mongoose');
 
 // Retrieve a list of all posts
 exports.getAllPosts = async (req, res) => {
@@ -12,23 +13,22 @@ exports.getAllPosts = async (req, res) => {
 };
 
 // Retrieve details of a specific post by ID
-exports.getPostById = (req, res) => {
+exports.getPostById = async (req, res) => {
     // Extract the post ID from the request parameters
     const postId = req.params.id;
 
-    Post.findById(postId, (err, post) => {
-        if (err) {
-            console.error('Error retrieving post:', err);
-            return res.status(500).json({ error: 'Error retrieving post' });
-        }
-
+    try {
+        const post = await Post.findById(postId).exec();
         if (!post) {
             console.log('Post not found');
             return res.status(404).json({ error: 'Post not found' });
         }
 
-        res.json({ post: post });
-    });
+        res.json(post);
+    } catch (err) {
+        console.error('Error retrieving post:', err);
+        return res.status(500).json({ error: 'Error retrieving post' });
+    }
 };
 
 // Create a new post
@@ -39,7 +39,7 @@ exports.createPost = (req, res) => {
     const newPost = new Post({
         title: title,
         content: content,
-        author: author,
+        author: new mongoose.Types.ObjectId(author),
     });
 
     // Save the new post to the database
@@ -63,7 +63,7 @@ exports.updatePost = (req, res) => {
     // Find the post by ID and update its properties
     Post.findByIdAndUpdate(
         postId,
-        { title: title, content: content, author: author },
+        { title: title, content: content, author: new mongoose.Types.ObjectId(author) },
         { new: true } // Return the updated post in the response
     )
         .then((updatedPost) => {
