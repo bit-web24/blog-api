@@ -1,16 +1,14 @@
 const Post = require('../models/Post');
 
 // Retrieve a list of all posts
-exports.getAllPosts = (req, res) => {
-    // Retrieve all posts
-    Post.find({}, (err, posts) => {
-        if (err) {
-            console.error('Error retrieving posts:', err);
-            return res.status(500).json({ error: 'Error retrieving posts' });
-        }
-
-        res.json({ posts: posts });
-    });
+exports.getAllPosts = async (req, res) => {
+    try {
+        const posts = await Post.find().exec();
+        res.json(posts);
+    } catch (error) {
+        console.error('Error retrieving posts:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
 };
 
 // Retrieve details of a specific post by ID

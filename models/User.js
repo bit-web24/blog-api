@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
+require('dotenv').config();
+
+// Connect to MongoDB Atlas
+mongoose.connect(process.env.ATLAS_KEY, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
 
 const userSchema = new mongoose.Schema({
-    _id: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        unique: true,
-    },
     username: {
         type: String,
         required: true,
