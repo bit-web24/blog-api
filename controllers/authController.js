@@ -31,7 +31,6 @@ const register = async (req, res) => {
         // Respond with success message
         res.status(201).json({ message: 'User registered successfully.' });
     } catch (error) {
-        console.error('Error registering user:', error);
         res.status(500).json({ message: 'Internal server error.' });
     }
 };
@@ -59,9 +58,8 @@ const login = async (req, res) => {
         // Respond with the token
         res.status(200).json({ token });
     } catch (error) {
-        console.error('Error logging in:', error);
         res.status(500).json({ message: 'Internal server error.' });
     }
 };
 
-module.exports = {register, login}
+module.exports = { register, login }

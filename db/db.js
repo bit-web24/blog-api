@@ -16,7 +16,6 @@ const connectToDB = async () => {
     // Return the connected client for reuse in other parts of the application
     return client;
   } catch (error) {
-    console.error('Error connecting to MongoDB Atlas:', error);
     throw error;
   }
 };

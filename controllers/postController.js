@@ -1,5 +1,8 @@
 const Post = require('../models/Post');
-const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+const secretKey = process.env.SECRET_KEY;
 
 // Retrieve a list of all posts
 exports.getAllPosts = async (req, res) => {
@@ -7,7 +10,6 @@ exports.getAllPosts = async (req, res) => {
         const posts = await Post.find().exec();
         res.json(posts);
     } catch (error) {
-        console.error('Error retrieving posts:', error);
         res.status(500).json({ message: 'Internal server error.' });
     }
 };
@@ -20,79 +22,110 @@ exports.getPostById = async (req, res) => {
     try {
         const post = await Post.findById(postId).exec();
         if (!post) {
-            console.log('Post not found');
             return res.status(404).json({ error: 'Post not found' });
         }
 
         res.json(post);
     } catch (err) {
-        console.error('Error retrieving post:', err);
         return res.status(500).json({ error: 'Error retrieving post' });
     }
 };
 
 // Create a new post
-exports.createPost = (req, res) => {
-    const { title, content, author } = req.body;
+exports.createPost = async (req, res) => {
+    const { title, content } = req.body;
 
-    // Create a new Post instance
-    const newPost = new Post({
-        title: title,
-        content: content,
-        author: new mongoose.Types.ObjectId(author),
-    });
+    try {
+        const token = req.headers['authorization'];
+        const decodedToken = jwt.verify(token, secretKey);
+        const userId = decodedToken.userId;
 
-    // Save the new post to the database
-    newPost.save()
-        .then((savedPost) => {
-            res.status(201).json({ message: 'Post created successfully', post: savedPost });
-        })
-        .catch((err) => {
-            console.error('Error creating post:', err);
-            res.status(500).json({ error: 'Error creating post' });
+        // Create a new Post instance
+        const newPost = new Post({
+            title: title,
+            content: content,
+            author: userId,
         });
+
+        // Save the new post to the database
+        await newPost.save();
+
+        res.status(201).json({ message: 'Post created successfully', post: newPost });
+    } catch (error) {
+        res.status(500).json({ error: 'Error creating post' });
+    }
 };
 
 // Update the details of a specific blog post by ID
-exports.updatePost = (req, res) => {
+exports.updatePost = async (req, res) => {
     // Extract the post ID from the request parameters
     const postId = req.params.id;
 
-    const { title, content, author } = req.body;
+    const { title, content } = req.body;
 
-    // Find the post by ID and update its properties
-    Post.findByIdAndUpdate(
-        postId,
-        { title: title, content: content, author: new mongoose.Types.ObjectId(author) },
-        { new: true } // Return the updated post in the response
-    )
-        .then((updatedPost) => {
-            if (!updatedPost) {
-                return res.status(404).json({ error: 'Post not found' });
-            }
-            res.json({ message: 'Post updated successfully', post: updatedPost });
-        })
-        .catch((err) => {
-            console.error('Error updating post:', err);
-            res.status(500).json({ error: 'Error updating post' });
-        });
+    try {
+        const token = req.headers['authorization'];
+        const decodedToken = jwt.verify(token, secretKey);
+        const userId = decodedToken.userId;
+
+        // Find the post by ID and check if the author is the current user
+        const post = await Post.findById(postId);
+
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+
+        if (post.author.toString() !== userId.toString()) {
+            return res.status(403).json({ error: 'You are not authorized to update this post' });
+        }
+
+        // Find the post by ID and update its properties
+        const updatedPost = await Post.findByIdAndUpdate(
+            postId,
+            { title: title, content: content },
+            { new: true } // Return the updated post in the response
+        );
+
+        if (!updatedPost) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+
+        res.json({ message: 'Post updated successfully', post: updatedPost });
+    } catch (error) {
+        res.status(500).json({ error: 'Error updating post' });
+    }
 };
 
 // Remove a blog post by ID
-exports.deletePost = (req, res) => {
+exports.deletePost = async (req, res) => {
     // Extract the post ID from the request parameters
     const postId = req.params.id;
 
-    // Find the post by ID and remove it
-    Post.findByIdAndRemove(postId)
-        .then((deletedPost) => {
-            if (!deletedPost) {
-                return res.status(404).json({ error: 'Post not found' });
-            }
-            res.json({ message: 'Post deleted successfully' });
-        })
-        .catch((err) => {
-            console.error('Error deleting post:', err);
-            res.status(500).json({ error: 'Error deleting post' });
-        });
+    try {
+        const token = req.headers['authorization'];
+        const decodedToken = jwt.verify(token, secretKey);
+        const userId = decodedToken.userId;
+
+        // Find the post by ID and check if the author is the current user
+        const post = await Post.findById(postId);
+
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+
+        if (post.author.toString() !== userId.toString()) {
+            return res.status(403).json({ error: 'You are not authorized to delete this post' });
+        }
+
+        // Delete the post by ID
+        const deletedPost = await Post.findByIdAndRemove(postId);
+
+        if (!deletedPost) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+
+        res.json({ message: 'Post deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error deleting post' });
+    }
 };
