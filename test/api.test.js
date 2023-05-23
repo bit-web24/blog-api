@@ -11,40 +11,41 @@ before((done) => {
 });
 
 after((done) => {
-  // Close the server after the tests are finished
-  app.close(() => {
-    console.log('Server Stoped');
-    done();
-  });
+    // Close the server after the tests are finished
+    app.close(() => {
+        console.log('Server Stoped');
+        done();
+    });
 });
 
 describe('API endpoints', () => {
     describe('Authentication routes', () => {
-        // it('should register a new user', (done) => {
-        //     const userData = {
-        //         username: "test_user",
-        //         password: "test-pass"
-        //     };
+        it('should register a new user', function (done) {
+            this.timeout(10000);
+            const userData = {
+                username: "test_user",
+                password: "test_pass"
+            };
 
-        //     request(app)
-        //         .post('/api/auth/register')
-        //         .send(userData)
-        //         .expect(201)
-        //         .end((err, res) => {
-        //             if (err) return done(err);
+            request(app)
+                .post('/api/auth/register')
+                .send(userData)
+                .expect(201)
+                .end((err, res) => {
+                    if (err) return done(err);
 
-        //             assert.equal(res.body.message, 'User registered successfully');
+                    assert.equal(res.body.message, 'User registered successfully');
 
-        //             done();
-        //         });
-        // });
+                    done();
+                });
+        });
 
         it('should log in a user', function (done) {
             this.timeout(10000);
-            
+
             const credentials = {
                 username: "test_user",
-                password: "test-pass"
+                password: "test_pass"
             };
 
             request(app)
@@ -55,7 +56,7 @@ describe('API endpoints', () => {
                     if (err) return done(err);
 
                     TOKEN_VALUE = res.body.token;
-                    
+
                     assert.ok(TOKEN_VALUE);
                     assert.equal(res.body.message, 'Login successful');
 
@@ -82,7 +83,7 @@ describe('API endpoints', () => {
 
                     USER_ID = res.body.post.author;
                     POST_ID = res.body.post._id;
-                    
+
                     assert.ok(POST_ID);
                     assert.ok(USER_ID);
                     assert.equal(res.body.message, 'Post created successfully');
@@ -165,6 +166,58 @@ describe('API endpoints', () => {
 
                     assert.equal(res.body.message, 'Post deleted successfully');
                     assert.equal(res.body.postId, POST_ID);
+
+                    done();
+                });
+        });
+    });
+
+    describe('Users routes', () => {
+        it('should get all users', function (done) {
+            this.timeout(10000);
+            request(app)
+                .get('/api/users')
+                .set('Authorization', TOKEN_VALUE)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+
+                    assert.equal(res.body.message, 'Users retrieved successfully');
+                    assert.equal(res.body.users[0].username, 'test_user');
+                    assert.equal(res.body.users[0]._id, USER_ID);
+
+                    done();
+                });
+        });
+
+        it('should get a user by ID', function (done) {
+            this.timeout(10000);
+            request(app)
+                .get(`/api/users/${USER_ID}`)
+                .set('Authorization', TOKEN_VALUE)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+
+                    assert.equal(res.body.message, 'User retrieved successfully');
+                    assert.equal(res.body.user.username, 'test_user');
+                    assert.equal(res.body.user._id, USER_ID);
+
+                    done();
+                });
+        });
+
+        it('should delete a user', function (done) {
+            this.timeout(10000);
+            request(app)
+                .delete(`/api/users/${USER_ID}`)
+                .set('Authorization', TOKEN_VALUE)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+
+                    assert.equal(res.body.message, 'User and associated posts deleted successfully');
+                    assert.equal(res.body.userId, USER_ID);
 
                     done();
                 });
