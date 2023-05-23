@@ -9,17 +9,17 @@ app.use(bodyParser.json());
 // Import your routes
 const routes = require('./routes/routes');
 
-connectToDB()
-  .then((client) => {
-    // Use the routes
-    app.use('/', routes);
+(async ()=>{
+  await connectToDB();
+})();
 
-    // Start the server
-    const port = process.env.PORT;
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-    })
-  })
-  .catch((err) => {
-    console.error('Error connecting to MongoDB:', err);
-  });
+// Use the routes
+app.use('/', routes);
+
+// Start the server
+const port = process.env.PORT;
+const server = app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
+module.exports = server;

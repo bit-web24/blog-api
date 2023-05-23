@@ -11,7 +11,7 @@ const register = async (req, res) => {
         const { username, password } = req.body;
 
         // Check if the username already exists
-        const existingUser = await User.findOne({ username }).maxTimeMS(20000);
+        const existingUser = await User.findOne({ username }).maxTimeMS(2000);
         if (existingUser) {
             return res.status(409).json({ message: 'Username already exists.' });
         }
@@ -29,9 +29,9 @@ const register = async (req, res) => {
         await newUser.save({ maxTimeMS: 20000 });
 
         // Respond with success message
-        res.status(201).json({ message: 'User registered successfully.' });
+        res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Internal server error.' });
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -56,7 +56,7 @@ const login = async (req, res) => {
         const token = jwt.sign({ userId: user._id, username: user.username }, secretKey, { expiresIn: '1h' });
 
         // Respond with the token
-        res.status(200).json({ token });
+        res.status(200).json({ token, message: 'Login successful' });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error.' });
     }

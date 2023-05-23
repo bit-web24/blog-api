@@ -8,9 +8,9 @@ const secretKey = process.env.SECRET_KEY;
 exports.getAllPosts = async (req, res) => {
     try {
         const posts = await Post.find().exec();
-        res.json(posts);
+        res.status(200).json({ message: 'Posts retrieved successfully', posts});
     } catch (error) {
-        res.status(500).json({ message: 'Internal server error.' });
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -25,7 +25,7 @@ exports.getPostById = async (req, res) => {
             return res.status(404).json({ error: 'Post not found' });
         }
 
-        res.json(post);
+        res.status(200).json({ message: 'Post retrieved successfully', post});
     } catch (err) {
         return res.status(500).json({ error: 'Error retrieving post' });
     }
@@ -124,7 +124,7 @@ exports.deletePost = async (req, res) => {
             return res.status(404).json({ error: 'Post not found' });
         }
 
-        res.json({ message: 'Post deleted successfully' });
+        res.json({ message: 'Post deleted successfully', postId });
     } catch (error) {
         res.status(500).json({ error: 'Error deleting post' });
     }
