@@ -1,7 +1,7 @@
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
-const connectToDB = async () => {
+const connectToDB = () => {
   try {
     const uri = process.env.ATLAS_KEY;
     const client = new MongoClient(uri, {
@@ -10,7 +10,7 @@ const connectToDB = async () => {
     });
 
     // Connect to MongoDB Atlas
-    await client.connect();
+    client.connect();
     console.log('Connected to MongoDB Atlas');
 
     // Return the connected client for reuse in other parts of the application

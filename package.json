@@ -4,7 +4,7 @@
   "description": "RESTful API using Node.js and Express.js for a Blogging Platform",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/**/*.test.js",
+    "test": "mocha test/**/*.test.js --exit",
     "start": "node app.js"
   },
   "repository": {

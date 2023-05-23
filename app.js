@@ -9,9 +9,7 @@ app.use(bodyParser.json());
 // Import your routes
 const routes = require('./routes/routes');
 
-(async ()=>{
-  await connectToDB();
-})();
+connectToDB();
 
 // Use the routes
 app.use('/', routes);

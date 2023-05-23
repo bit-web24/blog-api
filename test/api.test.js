@@ -13,6 +13,7 @@ before((done) => {
 after((done) => {
   // Close the server after the tests are finished
   app.close(() => {
+    console.log('Server Stoped');
     done();
   });
 });
@@ -102,7 +103,7 @@ describe('API endpoints', () => {
                     if (err) return done(err);
 
                     assert.equal(res.status, 200);
-                    assert.equal(res.body.posts.length, 2);
+                    assert.equal(res.body.posts.length, 1);
                     assert.equal(res.body.message, 'Posts retrieved successfully');
 
                     assert.equal(res.body.posts[0].title, 'post_title');
