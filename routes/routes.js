@@ -22,5 +22,6 @@ router.delete('/api/posts/:id', authenticateToken, postController.deletePost);
 router.get('/api/users', authenticateToken, userController.getAllUsers);
 router.get('/api/users/:id', authenticateToken, userController.getUserById);
 router.delete('/api/users/:id', authenticateToken, userController.deleteUser);
+router.put('/api/users/:id', authenticateToken, userController.updateUser);
 
 module.exports = router;

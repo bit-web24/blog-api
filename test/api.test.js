@@ -59,6 +59,8 @@ describe('API endpoints', () => {
 
                     assert.ok(TOKEN_VALUE);
                     assert.equal(res.body.message, 'Login successful');
+                    assert.equal(res.body.user.username, 'test_user');
+                    assert.ok(res.body.user._id);
 
                     done();
                 });
@@ -202,6 +204,27 @@ describe('API endpoints', () => {
                     assert.equal(res.body.message, 'User retrieved successfully');
                     assert.equal(res.body.user.username, 'test_user');
                     assert.equal(res.body.user._id, USER_ID);
+
+                    done();
+                });
+        });
+
+        it('should update a user\'s credentials', function (done) {
+            this.timeout(10000);
+            request(app)
+                .put(`/api/users/${USER_ID}`)
+                .set('Authorization', TOKEN_VALUE)
+                .send({
+                    username: 'updated_user',
+                    password: 'updated_pass'
+                })
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+
+                    assert.equal(res.body.message, 'Credentials updated successfully');
+                    assert.equal(res.body.user._id, USER_ID);
+                    assert.equal(res.body.user.username, 'updated_user');
 
                     done();
                 });

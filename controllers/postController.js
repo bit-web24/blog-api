@@ -1,14 +1,10 @@
 const Post = require('../models/Post');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
-
-const secretKey = process.env.SECRET_KEY;
 
 // Retrieve a list of all posts
 exports.getAllPosts = async (req, res) => {
     try {
         const posts = await Post.find().exec();
-        res.status(200).json({ message: 'Posts retrieved successfully', posts});
+        res.status(200).json({ message: 'Posts retrieved successfully', posts });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error' });
     }
@@ -25,7 +21,7 @@ exports.getPostById = async (req, res) => {
             return res.status(404).json({ error: 'Post not found' });
         }
 
-        res.status(200).json({ message: 'Post retrieved successfully', post});
+        res.status(200).json({ message: 'Post retrieved successfully', post });
     } catch (err) {
         return res.status(500).json({ error: 'Error retrieving post' });
     }
@@ -35,11 +31,8 @@ exports.getPostById = async (req, res) => {
 exports.createPost = async (req, res) => {
     const { title, content } = req.body;
 
+    const userId = req.user.userId;
     try {
-        const token = req.headers['authorization'];
-        const decodedToken = jwt.verify(token, secretKey);
-        const userId = decodedToken.userId;
-
         // Create a new Post instance
         const newPost = new Post({
             title: title,
@@ -64,9 +57,7 @@ exports.updatePost = async (req, res) => {
     const { title, content } = req.body;
 
     try {
-        const token = req.headers['authorization'];
-        const decodedToken = jwt.verify(token, secretKey);
-        const userId = decodedToken.userId;
+        const userId = req.user.userId;
 
         // Find the post by ID and check if the author is the current user
         const post = await Post.findById(postId);
@@ -102,9 +93,7 @@ exports.deletePost = async (req, res) => {
     const postId = req.params.id;
 
     try {
-        const token = req.headers['authorization'];
-        const decodedToken = jwt.verify(token, secretKey);
-        const userId = decodedToken.userId;
+        const userId = req.user.userId;
 
         // Find the post by ID and check if the author is the current user
         const post = await Post.findById(postId);
