@@ -163,9 +163,45 @@ describe('API endpoints', () => {
                 })
                 .expect(200);
 
+            TOKEN_VALUE = 'some-random-token';
+
             assert.equal(response.body.message, 'Credentials updated successfully');
             assert.equal(response.body.user._id, USER_ID);
             assert.equal(response.body.user.username, 'updated_user');
+        });
+
+        it('should log in a user', async function () {
+            this.timeout(10000);
+            const credentials = {
+                username: 'updated_user',
+                password: 'updated_pass'
+            };
+
+            const response = await request(app)
+                .post('/api/auth/login')
+                .send(credentials)
+                .expect(200);
+
+            const cookie = response.headers['set-cookie'][0];
+            const token = cookie.split(';')[0].split('=')[1];
+            TOKEN_VALUE = token;
+
+            assert.ok(TOKEN_VALUE);
+            assert.equal(response.body.message, 'Login successful');
+            assert.equal(response.body.user.username, 'updated_user');
+            assert.ok(response.body.user._id);
+        });
+
+        it('should logout a user', async function () {
+            this.timeout(10000);
+
+            const response = await request(app)
+                .post('/api/auth/logout')
+                .expect(200);
+
+            TOKEN_VALUE = 'some-random-token';
+
+            assert.equal(response.body.message, 'Logout successful');
         });
 
         it('should log in a user', async function () {
