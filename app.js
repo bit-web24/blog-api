@@ -2,9 +2,11 @@ const express = require('express');
 const app = express();
 const connectToDB = require('./db/db');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 require('dotenv').config();
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 // Import your routes
 const routes = require('./routes/routes');

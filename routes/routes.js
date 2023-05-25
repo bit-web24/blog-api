@@ -10,6 +10,7 @@ const userController = require('../controllers/userController');
 // Authentication routes
 router.post('/api/auth/register', authController.register);
 router.post('/api/auth/login', authController.login);
+router.post('/api/auth/logout', authController.logout);
 
 // Blog post routes
 router.get('/api/posts', authenticateToken, postController.getAllPosts);

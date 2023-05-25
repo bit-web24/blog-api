@@ -55,6 +55,9 @@ const login = async (req, res) => {
         // Generate JWT token
         const token = jwt.sign({ userId: user._id, username: user.username }, secretKey, { expiresIn: '1h' });
 
+        // Store the JWT in a cookie
+        res.cookie('token', token, { httpOnly: true });
+
         // Respond with the token
         res.status(200).json({ token, message: 'Login successful', user });
     } catch (error) {
@@ -62,4 +65,13 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { register, login }
+// Function to handle user logout
+const logout = (req, res) => {
+    // Clear the JWT cookie
+    res.clearCookie('token');
+
+    // Respond with a success message
+    res.status(200).json({ message: "Logout successful" });
+};
+
+module.exports = { register, login, logout }

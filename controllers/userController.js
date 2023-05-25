@@ -57,6 +57,9 @@ const deleteUser = async (req, res) => {
             return res.status(500).json({ message: 'Error deleting posts of removed user' });
         }
 
+        // Clear the JWT cookie
+        res.clearCookie('token');
+
         res.status(200).json({ message: 'User and associated posts deleted successfully', userId });
     } catch (error) {
         console.error('Error deleting user:', error);
@@ -97,6 +100,9 @@ const updateUser = async (req, res) => {
 
         // Save the updated user
         await user.save();
+
+        // Clear the JWT cookie
+        res.clearCookie('token');
 
         res.status(200).json({ message: 'Credentials updated successfully', user });
     } catch (error) {
