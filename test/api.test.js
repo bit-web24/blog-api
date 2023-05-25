@@ -230,6 +230,32 @@ describe('API endpoints', () => {
                 });
         });
 
+        it('should log in a user', function (done) {
+            this.timeout(10000);
+
+            const credentials = {
+                username: "updated_user",
+                password: "updated_pass"
+            };
+
+            request(app)
+                .post('/api/auth/login')
+                .send(credentials)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) return done(err);
+
+                    TOKEN_VALUE = res.body.token;
+
+                    assert.ok(TOKEN_VALUE);
+                    assert.equal(res.body.message, 'Login successful');
+                    assert.equal(res.body.user.username, 'updated_user');
+                    assert.ok(res.body.user._id);
+
+                    done();
+                });
+        });
+
         it('should delete a user', function (done) {
             this.timeout(10000);
             request(app)

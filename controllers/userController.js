@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Post = require('../models/Post');
+const bcrypt = require('bcrypt');
 
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -87,9 +88,12 @@ const updateUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         // Update the user's username and email
         user.username = username;
-        user.password = password;
+        user.password = hashedPassword;
 
         // Save the updated user
         await user.save();
